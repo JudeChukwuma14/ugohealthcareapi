@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 }).catch((err) => {
   console.log(err);
 });
-
+app.get('/', (req, res) => res.send('Hello, Vercel!'));
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/auth", authRouter);
 
