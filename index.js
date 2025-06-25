@@ -1,35 +1,51 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-dotenv.config();
-const app = express();
-const productRouter = require("./router/product.router");
-const authRouter = require("./router/auth.router");
-const cookies = require("cookie-parser");
+const cookieParser = require("cookie-parser");
 
-app.use(cookies());
-app.use(cors())
+dotenv.config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Log all incoming requests
+// Routers
+const productRouter = require("./router/product.router");
+const authRouter = require("./router/auth.router");
 
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error("MONGODB_URI not found in .env");
+  process.exit(1);
+}
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("DB connected"))
-  .catch(err => console.error("DB connection error:", err));
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
 
-app.get('/', (req, res) => res.send('Hello, Vercel!'));
+mongoose.connection.on("error", err => {
+  console.error("Mongoose error:", err);
+});
+
+// Routes
+app.get("/", (req, res) => {
+  res.send("Hello, server is running.");
+});
+
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/auth", authRouter);
 
-// Catch-all route for debugging
-
-// Error handling middleware
-
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+// Start Server
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
