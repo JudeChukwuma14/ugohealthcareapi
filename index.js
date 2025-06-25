@@ -17,11 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 // Log all incoming requests
 
 
-mongoose.connect(process.env.MONGODB_URI).then(() => {
-  console.log("MongoDB connected");
-}).catch((err) => {
-  console.log(err);
-});
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("DB connected"))
+  .catch(err => console.error("DB connection error:", err));
+
 app.get('/', (req, res) => res.send('Hello, Vercel!'));
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/auth", authRouter);
